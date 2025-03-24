@@ -41,7 +41,7 @@ import groovy.json.JsonOutput
 
 //read the schema
 def filePath = context.expand('${projectDir}')
-def projectArtifactLocation = filePath + "/Project-1-readyapi-project/resources/requestSchema.txt"
+def projectArtifactLocation = filePath + "/Groovy-Knowledge-ReadyAPI/resources/requestSchema.txt"
 def fileContent = new File(projectArtifactLocation).text
 def json = new JsonSlurper().parseText(fileContent)
 def requestBody = JsonOutput.prettyPrint(JsonOutput.toJson(json))
@@ -218,14 +218,6 @@ try {
           <con:entry>Authorization</con:entry>
         </con:parameterOrder>
       </con:restRequest>
-    </con:config>
-  </con:testStep>
-  <con:testStep type="datasourceloop" name="Data Source Loop" id="65bb391b-8f76-4a1c-b499-e4290ca91979">
-    <con:settings/>
-    <con:config>
-      <dataSourceStep>Resource</dataSourceStep>
-      <targetStep>Resource</targetStep>
-      <discardResults>true</discardResults>
     </con:config>
   </con:testStep>
   <con:properties>

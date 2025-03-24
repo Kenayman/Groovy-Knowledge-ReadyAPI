@@ -41,7 +41,7 @@ import groovy.json.JsonOutput
 
 //read the schema
 def filePath = context.expand('${projectDir}')
-def projectArtifactLocation = filePath + "/Project-1-readyapi-project/resources/requestSchema.txt"
+def projectArtifactLocation = filePath + "/Groovy-Knowledge-ReadyAPI/resources/requestSchema.txt"
 def fileContent = new File(projectArtifactLocation).text
 def json = new JsonSlurper().parseText(fileContent)
 def requestBody = JsonOutput.prettyPrint(JsonOutput.toJson(json))
@@ -53,19 +53,21 @@ requestStep.getHttpRequest().setRequestContent(requestBody)</script>
   <con:testStep type="groovy" name="Singleton" id="f8c2951d-dd61-489b-9ac1-191efc0bb194">
     <con:settings/>
     <con:config>
-      <script>// Singleton for configuration management
+      <script>import io.qameta.allure.Allure
+import io.qameta.allure.model.Status  // Importación de Status
+
 class ProjectConfig {
     private static ProjectConfig instance = null
     String projectName
 
     private ProjectConfig(context) {
-        // Initialize projectName from the ReadyAPI context
         projectName = context.testCase.testSuite.project.name
     }
 
     static ProjectConfig getInstance(context) {
         if(instance == null) {
-            instance = new ProjectConfig(context) // Pasamos el contexto al constructor
+            instance = new ProjectConfig(context)
+            Allure.step("Initializing Singleton ProjectConfig", Status.PASSED) // Comentario de Allure
         }
         return instance
     }
@@ -73,6 +75,7 @@ class ProjectConfig {
 
 // Usage in Step 1:
 def config = ProjectConfig.getInstance(context)
+Allure.step("Project Name (from Singleton): " + config.projectName, Status.PASSED) // Comentario de Allure
 log.info("Project Name (from Singleton): " + config.projectName)
 </script>
     </con:config>
@@ -80,7 +83,9 @@ log.info("Project Name (from Singleton): " + config.projectName)
   <con:testStep type="groovy" name="Builder" id="e47f849f-8f88-47bb-8e7f-6b5e9f812088">
     <con:settings/>
     <con:config>
-      <script>// Builder for TestCase properties
+      <script>import io.qameta.allure.Allure
+import io.qameta.allure.model.Status
+
 class TestCasePropertyBuilder {
     def testCase
     def properties = [:]
@@ -102,11 +107,13 @@ class TestCasePropertyBuilder {
 }
 
 // Usage in Step 2:
+Allure.step("Building TestCase properties", Status.PASSED)
 new TestCasePropertyBuilder(context.testCase)
     .addProperty("Token", context.expand('${Resource#token}'))
     .build()
 
 def token = context.testCase.getPropertyValue("Token")
+Allure.step("Token value retrieved", Status.PASSED)
 log.info "Token (via Builder): ${token}"
 </script>
     </con:config>
@@ -114,7 +121,9 @@ log.info "Token (via Builder): ${token}"
   <con:testStep type="groovy" name="Delegation" id="fd8c52db-4a8f-4694-969b-a993c183ce24">
     <con:settings/>
     <con:config>
-      <script>// Delegation: a helper class for header management
+      <script>import io.qameta.allure.Allure
+import io.qameta.allure.model.Status
+
 class HeaderManager {
     static void addAuthorizationHeader(def request, String token) {
         def headers = request.getHttpRequest().getRequestHeaders()
@@ -124,11 +133,14 @@ class HeaderManager {
 }
 
 // Usage in Step 3:
+Allure.step("Adding Authorization Header", Status.PASSED) // Comentario de Allure
 def request = testRunner.testCase.getTestStepByName("REST Request")
 if (request == null) {
+    Allure.step("Test Step non existent", Status.FAILED) // Comentario de Allure en caso de error
     log.error("Test Step non existent")
 } else {
     HeaderManager.addAuthorizationHeader(request, context.expand('${Resource#Authorization}'))
+    Allure.step("Header set successfully", Status.PASSED) // Comentario de Allure
     log.info("Header set successfully via Delegation")
 }
 </script>
@@ -138,8 +150,9 @@ if (request == null) {
     <con:settings/>
     <con:config>
       <script>import groovy.json.JsonSlurper
+import io.qameta.allure.Allure
+import io.qameta.allure.model.Status
 
-// Factory for JSON Response parsing
 interface ResponseParser {
     def parse(String responseContent)
 }
@@ -164,9 +177,11 @@ class ParserFactory {
 // Usage in Step 4:
 def requestStep = testRunner.testCase.getTestStepByName("REST Request")
 def requestBody = requestStep.testRequest.requestContent
+Allure.step("Parsing JSON Response", Status.PASSED) // Comentario de Allure
 def parser = ParserFactory.getParser("JSON")
 def json = parser.parse(requestBody)
 def extractedToken = json.user.token
+Allure.step("Extracted Token (via Factory)", Status.PASSED) // Comentario de Allure
 log.info "Extracted Token (via Factory): ${extractedToken}"
 </script>
     </con:config>
@@ -176,7 +191,9 @@ log.info "Extracted Token (via Factory): ${extractedToken}"
     <con:config>
       <script>import com.eviware.soapui.model.testsuite.TestStep
 import java.util.logging.Logger
-// Chain of Responsibility: Abstract handler for test steps
+import io.qameta.allure.Allure
+import io.qameta.allure.model.Status
+
 abstract class TestStepHandler {
     TestStepHandler nextHandler
 
@@ -188,28 +205,24 @@ abstract class TestStepHandler {
 
     protected void passOn(TestStep step, def runner, def context) {
         if (nextHandler != null) {
+            Allure.step("Passing on to next handler", Status.PASSED) // Comentario de Allure
             nextHandler.handle(step, runner, context)
         }
     }
 }
 
 class RestRequestHandler extends TestStepHandler {
-    private static final Logger logger = Logger.getLogger(RestRequestHandler.class.name)
-
     @Override
     void handle(TestStep step, def runner, def context) {
-        // Ejecutar el paso de solicitud REST
         step.run(runner, context)
-        logger.info("REST Request executed in Chain of Responsibility")
+        Allure.step("Executing REST Request in Chain of Responsibility", Status.PASSED) // Comentario de Allure
         passOn(step, runner, context)
     }
 }
 
-
 // Usage in Step 5:
 def testStep = testRunner.testCase.getTestStepByName("REST Request") as TestStep
 def handler = new RestRequestHandler()
-// If additional handlers existed, you would link them via setNextHandler()
 handler.handle(testStep, testRunner, context)
 </script>
     </con:config>
@@ -217,16 +230,18 @@ handler.handle(testStep, testRunner, context)
   <con:testStep type="groovy" name="Lazy Initialization" id="184867b0-60ff-401a-ba55-a598a34dcf34">
     <con:settings/>
     <con:config>
-      <script>class ValidationHelper {
+      <script>import io.qameta.allure.Allure
+import io.qameta.allure.model.Status
+
+class ValidationHelper {
     static ValidationHelper instance = null
 
-    private ValidationHelper() {
-        // Expensive setup can occur here if needed
-    }
+    private ValidationHelper() {}
 
     static ValidationHelper getInstance(def log) {
         if (instance == null) {
             instance = new ValidationHelper()
+            Allure.step("Initializing ValidationHelper lazily", Status.PASSED) // Comentario de Allure
             log.info "ValidationHelper initialized lazily"
         }
         return instance
@@ -241,6 +256,7 @@ handler.handle(testStep, testRunner, context)
 def status = testRunner.testCase.getTestStepByName("REST Request")
              .testRequest.response.responseHeaders["#status#"]?.first()
 ValidationHelper.getInstance(log).validateStatus(status)
+Allure.step("Status validated via Lazy Initialization", Status.PASSED) // Comentario de Allure
 log.info "Status validated via Lazy Initialization"
 </script>
     </con:config>
@@ -281,14 +297,6 @@ log.info "Status validated via Lazy Initialization"
           <con:entry>Authorization</con:entry>
         </con:parameterOrder>
       </con:restRequest>
-    </con:config>
-  </con:testStep>
-  <con:testStep type="datasourceloop" name="Data Source Loop" id="516c653d-4c15-4a79-bbab-e7c4014b853c">
-    <con:settings/>
-    <con:config>
-      <dataSourceStep>Resource</dataSourceStep>
-      <targetStep>Resource</targetStep>
-      <discardResults>true</discardResults>
     </con:config>
   </con:testStep>
   <con:properties>

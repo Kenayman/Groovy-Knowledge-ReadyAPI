@@ -8,7 +8,7 @@
     <con:config xsi:type="con:DataSourceStep">
       <con:dataSource type="Data Generator">
         <con:configuration>
-          <generatedDataCount>10</generatedDataCount>
+          <generatedDataCount>1</generatedDataCount>
           <generatorsTotalNumber>2</generatorsTotalNumber>
           <lastSelectedProperty>0</lastSelectedProperty>
           <GeneratorType0>CUSTOM</GeneratorType0>
@@ -41,7 +41,7 @@ import groovy.json.JsonOutput
 
 //read the schema
 def filePath = context.expand('${projectDir}')
-def projectArtifactLocation = filePath + "/Project-1-readyapi-project/resources/requestSchema.txt"
+def projectArtifactLocation = filePath + "/Groovy-Knowledge-ReadyAPI/resources/requestSchema.txt"
 def fileContent = new File(projectArtifactLocation).text
 def json = new JsonSlurper().parseText(fileContent)
 def requestBody = JsonOutput.prettyPrint(JsonOutput.toJson(json))
@@ -146,14 +146,6 @@ assert status?.startsWith("200") : "status check failed. Expected 'OK, but found
           <con:entry>Authorization</con:entry>
         </con:parameterOrder>
       </con:restRequest>
-    </con:config>
-  </con:testStep>
-  <con:testStep type="datasourceloop" name="Data Source Loop" id="95345e4e-6551-415c-bf48-0d40b9552974">
-    <con:settings/>
-    <con:config>
-      <dataSourceStep>Resource</dataSourceStep>
-      <targetStep>Resource</targetStep>
-      <discardResults>true</discardResults>
     </con:config>
   </con:testStep>
   <con:properties>
