@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project xmlns:con="http://eviware.com/soapui/config" id="2d4ff746-1468-499b-8757-913429f77db4" created="3.59.0" activeEnvironment="Default environment" encryptionMode="Not encrypted" name="Project 1" projectVersion="" resourceRoot="${projectDir}" compositeProjectFormat="1.3" updated="3.59.0">
+<con:soapui-project xmlns:con="http://eviware.com/soapui/config" id="2d4ff746-1468-499b-8757-913429f77db4" created="3.59.0" activeEnvironment="Default environment" encryptionMode="Not encrypted" name="GroovyTesting" projectVersion="" resourceRoot="${projectDir}" compositeProjectFormat="1.3" updated="3.59.0">
   <con:settings>
     <con:setting id="2d4ff746-1468-499b-8757-913429f77db4fileName">Project-1-readyapi-project</con:setting>
   </con:settings>
