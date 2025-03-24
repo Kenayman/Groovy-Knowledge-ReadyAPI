@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:testCase xmlns:con="http://eviware.com/soapui/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="3baca56d-75dc-4c18-b17d-a2c6ff624493" discardOkResults="false" failOnError="false" failTestCaseOnErrors="true" keepSession="false" name="Test Case 1" searchProperties="true" timeout="0">
+  <con:settings>
+    <con:setting id="3baca56d-75dc-4c18-b17d-a2c6ff624493fileName">Test-Case-1</con:setting>
+  </con:settings>
+  <con:testStep type="datasource" name="Resource" id="d3151a29-fb16-4576-ae42-429888ca0773">
+    <con:settings/>
+    <con:config xsi:type="con:DataSourceStep">
+      <con:dataSource type="Data Generator">
+        <con:configuration>
+          <generatedDataCount>10</generatedDataCount>
+          <generatorsTotalNumber>2</generatorsTotalNumber>
+          <lastSelectedProperty>0</lastSelectedProperty>
+          <GeneratorType0>CUSTOM</GeneratorType0>
+          <PropertyName0>Authorization</PropertyName0>
+          <repetitionCountAuthorization>0</repetitionCountAuthorization>
+          <repeatValuesAuthorization>false</repeatValuesAuthorization>
+          <CustomStringDataGeneratorFormatAuthorization>%SET(test_token,True)</CustomStringDataGeneratorFormatAuthorization>
+          <GeneratorType1>CUSTOM</GeneratorType1>
+          <PropertyName1>Token</PropertyName1>
+          <repetitionCountToken>0</repetitionCountToken>
+          <repeatValuesToken>false</repeatValuesToken>
+          <CustomStringDataGeneratorFormatToken>%SET(test123,True)</CustomStringDataGeneratorFormatToken>
+          <escapeSpaceSequence/>
+        </con:configuration>
+      </con:dataSource>
+      <con:shared>true</con:shared>
+      <con:restartShared>true</con:restartShared>
+      <con:property>Authorization</con:property>
+      <con:property>Token</con:property>
+      <con:completeLastOperation>true</con:completeLastOperation>
+      <con:restartOnRun>true</con:restartOnRun>
+      <con:stopDatasourceExhausted>false</con:stopDatasourceExhausted>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="ProcessSchemaForREST" id="803d02f0-8b4c-473a-9c09-3264e6a42bf2">
+    <con:settings/>
+    <con:config>
+      <script>import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
+//read the schema
+def filePath = context.expand('${projectDir}')
+def projectArtifactLocation = filePath + "/Project-1-readyapi-project/resources/requestSchema.txt"
+def fileContent = new File(projectArtifactLocation).text
+def json = new JsonSlurper().parseText(fileContent)
+def requestBody = JsonOutput.prettyPrint(JsonOutput.toJson(json))
+def requestStep = testRunner.testCase.getTestStepByName("REST Request")
+
+requestStep.getHttpRequest().setRequestContent(requestBody)</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Groovy Script" id="2b9be545-275f-4df5-9e4b-dbbe03335287">
+    <con:settings/>
+    <con:config>
+      <script>import com.eviware.soapui.impl.wsdl.teststeps.RestTestRequestStep
+import com.eviware.soapui.support.types.StringToStringMap
+import groovy.json.JsonSlurper
+import com.eviware.soapui.model.testsuite.TestStep
+import com.eviware.soapui.model.testsuite.TestCase
+
+//Obtain Values from data source
+def authorizationValue = context.expand('${Resource#Authorization}')
+def tokenValue = context.expand('${Resource#token}')
+
+log.info "auth: ${authorizationValue} and token: ${tokenValue}"
+//STEP 1 Extract the name of the folder
+def projectName = context.testCase.testSuite.project.name
+log.info("Project Name: " + projectName)
+
+//STEP 2: set and get a testcase property
+context.testCase.setPropertyValue("Token", tokenValue)
+def token = context.testCase.getPropertyValue("Token")
+log.info " Token:  ${token}"
+
+//STEP 3: Modify a Request Header Before Sending a Request
+def request = testRunner.testCase.getTestStepByName("REST Request")
+if (request == null) {
+    log.error("Test Step non existent")
+} else {
+    def headers = request.getHttpRequest().getRequestHeaders()
+    headers["Authorization"] = ["Bearer "+ "authorizationValue"]
+    request.getHttpRequest().setRequestHeaders(headers)
+    log.info("Header set succesfully")
+}
+
+//STEP 4: Parse a JSON Response and Log Data
+def requestStep = testRunner.testCase.getTestStepByName("REST Request")
+def requestBody = requestStep.testRequest.requestContent
+
+def json = new JsonSlurper().parseText(requestBody)
+def extractedToken = json.user.token
+log.info "Extracted Token: ${extractedToken}"
+
+//STEP 5: Execute Another Test Step Using Groovy
+def testStep = testRunner.testCase.getTestStepByName("REST Request") as TestStep
+testStep.run(testRunner, context)
+log.info "TestStep executed succesfully"
+
+//STEP6: Validate a Test Case Property Using assert
+def status = testRunner.testCase.getTestStepByName("REST Request").testRequest.response.responseHeaders["#status#"]?.first()
+assert status?.startsWith("200") : "status check failed. Expected 'OK, but found '${status}'"
+
+
+
+
+
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="restrequest" name="REST Request" id="552084cf-da6f-45a1-a25b-49821db9f34e">
+    <con:settings/>
+    <con:config service="Test" resourcePath="/apis" methodName="Method 1" xsi:type="con:RestRequestStep">
+      <con:restRequest name="REST Request" id="01d01488-9639-4014-83f7-54020a544925" mediaType="application/json" postQueryString="false">
+        <con:settings>
+          <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment>&lt;con:entry key="Authorization" value="Bearer authorizationValue" xmlns:con="http://eviware.com/soapui/config"/>&lt;con:entry key="A" value="Bearer test_token" xmlns:con="http://eviware.com/soapui/config"/>&lt;con:entry key="Authoraization" value="Bearer test_token" xmlns:con="http://eviware.com/soapui/config"/>&lt;/xml-fragment></con:setting>
+        </con:settings>
+        <con:endpoint>https://api.swaggerhub.com</con:endpoint>
+        <con:request>{
+    "user": {
+        "id": 1,
+        "token": "abcdef123456"
+    }
+}</con:request>
+        <con:originalUri>https://api.swaggerhub.com/apis</con:originalUri>
+        <con:assertion type="Valid HTTP Status Codes" id="25a4eb72-6f3b-4f38-aa84-e87d82e052c7" name="Valid HTTP Status Codes">
+          <con:settings/>
+          <con:configuration>
+            <codes>405</codes>
+          </con:configuration>
+        </con:assertion>
+        <con:assertion type="Response SLA Assertion" id="b801bbdf-df29-46ed-8f47-14c1eb153576" name="Response SLA">
+          <con:configuration>
+            <SLA>2000</SLA>
+          </con:configuration>
+        </con:assertion>
+        <con:credentials>
+          <con:selectedAuthProfile>No Authorization</con:selectedAuthProfile>
+          <con:authType>No Authorization</con:authType>
+        </con:credentials>
+        <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+        <con:parameters>
+          <con:entry key="Authorization" value="${Resource#Authorization}"/>
+        </con:parameters>
+        <con:parameterOrder>
+          <con:entry>Authorization</con:entry>
+        </con:parameterOrder>
+      </con:restRequest>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="datasourceloop" name="Data Source Loop" id="95345e4e-6551-415c-bf48-0d40b9552974">
+    <con:settings/>
+    <con:config>
+      <dataSourceStep>Resource</dataSourceStep>
+      <targetStep>Resource</targetStep>
+      <discardResults>true</discardResults>
+    </con:config>
+  </con:testStep>
+  <con:properties>
+    <con:property>
+      <con:name>Token</con:name>
+      <con:value>test123</con:value>
+    </con:property>
+  </con:properties>
+  <con:reportParameters/>
+</con:testCase>

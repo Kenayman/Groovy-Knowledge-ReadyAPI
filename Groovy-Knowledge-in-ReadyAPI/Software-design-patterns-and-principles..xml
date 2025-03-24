@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:testCase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:con="http://eviware.com/soapui/config" id="e432d087-2b1b-40d6-9f70-873c070de7fc" discardOkResults="false" failOnError="false" failTestCaseOnErrors="true" keepSession="false" name="Software design patterns and principles." searchProperties="true" timeout="0">
+  <con:settings>
+    <con:setting id="e432d087-2b1b-40d6-9f70-873c070de7fcfileName">Software-design-patterns-and-principles.</con:setting>
+  </con:settings>
+  <con:testStep type="datasource" name="Resource" id="07eefc09-f94c-441e-b6f8-f838e194ba2a">
+    <con:settings/>
+    <con:config xsi:type="con:DataSourceStep">
+      <con:dataSource type="Data Generator">
+        <con:configuration>
+          <generatedDataCount>10</generatedDataCount>
+          <generatorsTotalNumber>2</generatorsTotalNumber>
+          <lastSelectedProperty>0</lastSelectedProperty>
+          <GeneratorType0>CUSTOM</GeneratorType0>
+          <PropertyName0>Authorization</PropertyName0>
+          <repetitionCountAuthorization>0</repetitionCountAuthorization>
+          <repeatValuesAuthorization>false</repeatValuesAuthorization>
+          <CustomStringDataGeneratorFormatAuthorization>%SET(test_token,True)</CustomStringDataGeneratorFormatAuthorization>
+          <GeneratorType1>CUSTOM</GeneratorType1>
+          <PropertyName1>Token</PropertyName1>
+          <repetitionCountToken>0</repetitionCountToken>
+          <repeatValuesToken>false</repeatValuesToken>
+          <CustomStringDataGeneratorFormatToken>%SET(test123,True)</CustomStringDataGeneratorFormatToken>
+          <escapeSpaceSequence/>
+        </con:configuration>
+      </con:dataSource>
+      <con:shared>true</con:shared>
+      <con:restartShared>true</con:restartShared>
+      <con:property>Authorization</con:property>
+      <con:property>Token</con:property>
+      <con:completeLastOperation>true</con:completeLastOperation>
+      <con:restartOnRun>true</con:restartOnRun>
+      <con:stopDatasourceExhausted>false</con:stopDatasourceExhausted>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="ProcessSchemaForREST" id="245383f9-d0d7-432b-bbeb-47dd53812806">
+    <con:settings/>
+    <con:config>
+      <script>import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
+//read the schema
+def filePath = context.expand('${projectDir}')
+def projectArtifactLocation = filePath + "/Project-1-readyapi-project/resources/requestSchema.txt"
+def fileContent = new File(projectArtifactLocation).text
+def json = new JsonSlurper().parseText(fileContent)
+def requestBody = JsonOutput.prettyPrint(JsonOutput.toJson(json))
+def requestStep = testRunner.testCase.getTestStepByName("REST Request")
+
+requestStep.getHttpRequest().setRequestContent(requestBody)</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Singleton" id="f8c2951d-dd61-489b-9ac1-191efc0bb194">
+    <con:settings/>
+    <con:config>
+      <script>// Singleton for configuration management
+class ProjectConfig {
+    private static ProjectConfig instance = null
+    String projectName
+
+    private ProjectConfig(context) {
+        // Initialize projectName from the ReadyAPI context
+        projectName = context.testCase.testSuite.project.name
+    }
+
+    static ProjectConfig getInstance(context) {
+        if(instance == null) {
+            instance = new ProjectConfig(context) // Pasamos el contexto al constructor
+        }
+        return instance
+    }
+}
+
+// Usage in Step 1:
+def config = ProjectConfig.getInstance(context)
+log.info("Project Name (from Singleton): " + config.projectName)
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Builder" id="e47f849f-8f88-47bb-8e7f-6b5e9f812088">
+    <con:settings/>
+    <con:config>
+      <script>// Builder for TestCase properties
+class TestCasePropertyBuilder {
+    def testCase
+    def properties = [:]
+
+    TestCasePropertyBuilder(def testCase) {
+        this.testCase = testCase
+    }
+
+    TestCasePropertyBuilder addProperty(String key, String value) {
+        properties[key] = value
+        return this
+    }
+
+    void build() {
+        properties.each { key, value ->
+            testCase.setPropertyValue(key, value)
+        }
+    }
+}
+
+// Usage in Step 2:
+new TestCasePropertyBuilder(context.testCase)
+    .addProperty("Token", context.expand('${Resource#token}'))
+    .build()
+
+def token = context.testCase.getPropertyValue("Token")
+log.info "Token (via Builder): ${token}"
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Delegation" id="fd8c52db-4a8f-4694-969b-a993c183ce24">
+    <con:settings/>
+    <con:config>
+      <script>// Delegation: a helper class for header management
+class HeaderManager {
+    static void addAuthorizationHeader(def request, String token) {
+        def headers = request.getHttpRequest().getRequestHeaders()
+        headers["Authorization"] = ["Bearer " + token]
+        request.getHttpRequest().setRequestHeaders(headers)
+    }
+}
+
+// Usage in Step 3:
+def request = testRunner.testCase.getTestStepByName("REST Request")
+if (request == null) {
+    log.error("Test Step non existent")
+} else {
+    HeaderManager.addAuthorizationHeader(request, context.expand('${Resource#Authorization}'))
+    log.info("Header set successfully via Delegation")
+}
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Factory Method" id="48015751-b388-4daf-9fe6-cea482ac9f35">
+    <con:settings/>
+    <con:config>
+      <script>import groovy.json.JsonSlurper
+
+// Factory for JSON Response parsing
+interface ResponseParser {
+    def parse(String responseContent)
+}
+
+class JsonResponseParser implements ResponseParser {
+    @Override
+    def parse(String responseContent) {
+        def json = new JsonSlurper().parseText(responseContent)
+        return json
+    }
+}
+
+class ParserFactory {
+    static ResponseParser getParser(String type) {
+        if(type == "JSON") {
+            return new JsonResponseParser()
+        }
+        throw new IllegalArgumentException("Unsupported parser type: " + type)
+    }
+}
+
+// Usage in Step 4:
+def requestStep = testRunner.testCase.getTestStepByName("REST Request")
+def requestBody = requestStep.testRequest.requestContent
+def parser = ParserFactory.getParser("JSON")
+def json = parser.parse(requestBody)
+def extractedToken = json.user.token
+log.info "Extracted Token (via Factory): ${extractedToken}"
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Chain of Responsibility" id="0b867095-dcbc-41f7-86e0-08fe58373999">
+    <con:settings/>
+    <con:config>
+      <script>import com.eviware.soapui.model.testsuite.TestStep
+import java.util.logging.Logger
+// Chain of Responsibility: Abstract handler for test steps
+abstract class TestStepHandler {
+    TestStepHandler nextHandler
+
+    void setNextHandler(TestStepHandler next) {
+        nextHandler = next
+    }
+
+    abstract void handle(TestStep step, def runner, def context)
+
+    protected void passOn(TestStep step, def runner, def context) {
+        if (nextHandler != null) {
+            nextHandler.handle(step, runner, context)
+        }
+    }
+}
+
+class RestRequestHandler extends TestStepHandler {
+    private static final Logger logger = Logger.getLogger(RestRequestHandler.class.name)
+
+    @Override
+    void handle(TestStep step, def runner, def context) {
+        // Ejecutar el paso de solicitud REST
+        step.run(runner, context)
+        logger.info("REST Request executed in Chain of Responsibility")
+        passOn(step, runner, context)
+    }
+}
+
+
+// Usage in Step 5:
+def testStep = testRunner.testCase.getTestStepByName("REST Request") as TestStep
+def handler = new RestRequestHandler()
+// If additional handlers existed, you would link them via setNextHandler()
+handler.handle(testStep, testRunner, context)
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="groovy" name="Lazy Initialization" id="184867b0-60ff-401a-ba55-a598a34dcf34">
+    <con:settings/>
+    <con:config>
+      <script>class ValidationHelper {
+    static ValidationHelper instance = null
+
+    private ValidationHelper() {
+        // Expensive setup can occur here if needed
+    }
+
+    static ValidationHelper getInstance(def log) {
+        if (instance == null) {
+            instance = new ValidationHelper()
+            log.info "ValidationHelper initialized lazily"
+        }
+        return instance
+    }
+
+    void validateStatus(String status) {
+        assert status?.startsWith("200") : "Status check failed. Expected 'OK', but found '${status}'"
+    }
+}
+
+// Usage in Step 6:
+def status = testRunner.testCase.getTestStepByName("REST Request")
+             .testRequest.response.responseHeaders["#status#"]?.first()
+ValidationHelper.getInstance(log).validateStatus(status)
+log.info "Status validated via Lazy Initialization"
+</script>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="restrequest" name="REST Request" id="0d5eccbf-70ba-46a5-ac17-095f8cd079f3">
+    <con:settings/>
+    <con:config service="Test" resourcePath="/apis" methodName="Method 1" xsi:type="con:RestRequestStep">
+      <con:restRequest name="REST Request" id="01d01488-9639-4014-83f7-54020a544925" mediaType="application/json" postQueryString="false">
+        <con:settings>
+          <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment>&lt;con:entry key="Authorization" value="Bearer test_token" xmlns:con="http://eviware.com/soapui/config"/>&lt;con:entry key="A" value="Bearer authorizationValue" xmlns:con="http://eviware.com/soapui/config"/>&lt;con:entry key="Authoraization" value="Bearer test_token" xmlns:con="http://eviware.com/soapui/config"/>&lt;/xml-fragment></con:setting>
+        </con:settings>
+        <con:endpoint>https://api.swaggerhub.com</con:endpoint>
+        <con:request>{
+    "user": {
+        "id": 1,
+        "token": "abcdef123456"
+    }
+}</con:request>
+        <con:originalUri>https://api.swaggerhub.com/apis</con:originalUri>
+        <con:assertion type="Valid HTTP Status Codes" id="25a4eb72-6f3b-4f38-aa84-e87d82e052c7" name="Valid HTTP Status Codes">
+          <con:settings/>
+          <con:configuration>
+            <codes>405</codes>
+          </con:configuration>
+        </con:assertion>
+        <con:assertion type="Response SLA Assertion" id="b801bbdf-df29-46ed-8f47-14c1eb153576" name="Response SLA">
+          <con:configuration>
+            <SLA>2000</SLA>
+          </con:configuration>
+        </con:assertion>
+        <con:credentials>
+          <con:selectedAuthProfile>No Authorization</con:selectedAuthProfile>
+          <con:authType>No Authorization</con:authType>
+        </con:credentials>
+        <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+        <con:parameters/>
+        <con:parameterOrder>
+          <con:entry>Authorization</con:entry>
+        </con:parameterOrder>
+      </con:restRequest>
+    </con:config>
+  </con:testStep>
+  <con:testStep type="datasourceloop" name="Data Source Loop" id="516c653d-4c15-4a79-bbab-e7c4014b853c">
+    <con:settings/>
+    <con:config>
+      <dataSourceStep>Resource</dataSourceStep>
+      <targetStep>Resource</targetStep>
+      <discardResults>true</discardResults>
+    </con:config>
+  </con:testStep>
+  <con:properties>
+    <con:property>
+      <con:name>Token</con:name>
+      <con:value>test123</con:value>
+    </con:property>
+  </con:properties>
+  <con:reportParameters/>
+</con:testCase>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:interface xmlns:con="http://eviware.com/soapui/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="con:RestService" id="dee84155-3fd7-48ce-afa0-b86a49db8d4a" name="Test" type="rest_ex" wadlVersion="https://swagger.io/swagger2/specification" definitionUrl="https://api.swaggerhub.com/apis/jlouvel/Test/1.2">
+  <con:description>Test</con:description>
+  <con:settings id="a030003f-1a95-4ebf-be5f-a516c748e311">
+    <con:setting id="dee84155-3fd7-48ce-afa0-b86a49db8d4afileName">Test</con:setting>
+  </con:settings>
+  <con:definitionCache type="TEXT" rootPart="https://api.swaggerhub.com/apis/jlouvel/Test/1.2">
+    <con:part>
+      <con:url>https://api.swaggerhub.com/apis/jlouvel/Test/1.2</con:url>
+      <con:content>{"swagger":"2.0","info":{"version":"1.2","title":"Test","description":"Test"},"paths":{}}</con:content>
+      <con:type>https://swagger.io/swagger2/specification</con:type>
+    </con:part>
+  </con:definitionCache>
+  <con:endpoints>
+    <con:endpoint>https://api.swaggerhub.com</con:endpoint>
+  </con:endpoints>
+</con:interface>

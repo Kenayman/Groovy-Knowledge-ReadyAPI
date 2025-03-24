@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:con="http://eviware.com/soapui/config" name="apis" path="apis" id="17487243-4497-494a-b037-46755d3b425e">
+  <con:settings>
+    <con:setting id="17487243-4497-494a-b037-46755d3b425efileName">apis</con:setting>
+  </con:settings>
+  <con:parameters/>
+  <con:method name="Method 1" id="3d05cfbc-a12c-4dd8-b29a-99be7d0d20b1" method="POST">
+    <con:settings/>
+    <con:parameters>
+      <con:parameter required="true">
+        <con:name>Authorization</con:name>
+        <con:value/>
+        <con:style>HEADER</con:style>
+        <con:default/>
+      </con:parameter>
+    </con:parameters>
+    <con:request name="Request 1" id="01d01488-9639-4014-83f7-54020a544925" mediaType="application/json" postQueryString="false">
+      <con:settings>
+        <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+      </con:settings>
+      <con:endpoint>https://api.swaggerhub.com</con:endpoint>
+      <con:request>{ 
+  "user": { 
+    "id": 1, 
+    "token": "abcdef123456" 
+  } 
+
+} </con:request>
+      <con:credentials>
+        <con:selectedAuthProfile>No Authorization</con:selectedAuthProfile>
+        <con:authType>No Authorization</con:authType>
+      </con:credentials>
+      <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+      <con:parameters>
+        <con:entry key="Authorization" value=""/>
+      </con:parameters>
+      <con:parameterOrder>
+        <con:entry>Authorization</con:entry>
+      </con:parameterOrder>
+    </con:request>
+  </con:method>
+</con:resource>

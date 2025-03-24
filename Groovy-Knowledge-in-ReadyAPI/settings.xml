@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:testSuite xmlns:con="http://eviware.com/soapui/config" id="72dfffb2-7c68-4090-9c55-24f0c09008f9" name="Groovy Knowledge in ReadyAPI">
+  <con:settings id="560889cf-8f0a-49c8-9b44-31532ea26ffd">
+    <con:setting id="72dfffb2-7c68-4090-9c55-24f0c09008f9fileName">Groovy-Knowledge-in-ReadyAPI</con:setting>
+  </con:settings>
+  <con:runType>SEQUENTIAL</con:runType>
+  <con:properties/>
+  <con:reportParameters/>
+</con:testSuite>

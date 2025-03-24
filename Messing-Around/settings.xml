@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:interface xmlns:con="http://eviware.com/soapui/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="con:RestService" id="39d87011-c174-4d4b-be7a-401eb904605e" name="Messing Around" type="rest_ex" wadlVersion="https://swagger.io/swagger2/specification" definitionUrl="https://api.swaggerhub.com/apis/homerlex/Testing/1.0.0" basePath="/giftcards/v1">
+  <con:description>Just Playing with Swagger</con:description>
+  <con:settings id="d16b4cdc-dc1f-408e-a596-3ea2fdc54122">
+    <con:setting id="39d87011-c174-4d4b-be7a-401eb904605efileName">Messing-Around</con:setting>
+  </con:settings>
+  <con:definitionCache type="TEXT" rootPart="https://api.swaggerhub.com/apis/homerlex/Testing/1.0.0">
+    <con:part>
+      <con:url>https://api.swaggerhub.com/apis/homerlex/Testing/1.0.0</con:url>
+      <con:content>{"swagger":"2.0","info":{"version":"1.0.0","title":"Messing Around","description":"Just Playing with Swagger"},"host":"services.eng.toasttab.com:17443","schemes":["https"],"basePath":"/giftcards/v1","consumes":["application/json"],"produces":["application/json"],"paths":{}}</con:content>
+      <con:type>https://swagger.io/swagger2/specification</con:type>
+    </con:part>
+  </con:definitionCache>
+  <con:endpoints>
+    <con:endpoint>https://services.eng.toasttab.com:17443</con:endpoint>
+  </con:endpoints>
+</con:interface>
