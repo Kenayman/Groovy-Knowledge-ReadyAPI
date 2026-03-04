@@ -91,7 +91,7 @@ def requestBody = requestStep.testRequest.requestContent
 def json = new JsonSlurper().parseText(requestBody)
 def extractedToken = json.user.token
 log.info "Extracted Token: ${extractedToken}"
-
+@ignore
 //STEP 5: Execute Another Test Step Using Groovy
 def testStep = testRunner.testCase.getTestStepByName("REST Request") as TestStep
 testStep.run(testRunner, context)
