@@ -2,21 +2,22 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Test') {
             steps {
-                bat 'whoami'
-                bat 'mvn clean test'
+                bat 'mvn -D clean test'
             }
         }
     }
 
     post {
-        always {
-            allure(
+        succes {
+            allure([
                 includeProperties: false,
                 jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS'
                 results: [[path: 'target/allure-results']]
-            )
+            ])
         }
     }
 }
