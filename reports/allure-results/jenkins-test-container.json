@@ -1,0 +1,11 @@
+{
+  "uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "name": "Jenkins Pipeline Suite",
+  "children": [
+    "11111111-2222-3333-4444-555555555555"
+  ],
+  "befores": [],
+  "afters": [],
+  "start": 1710000000000,
+  "stop": 1710000001000
+}
