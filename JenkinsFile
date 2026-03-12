@@ -1,34 +1,25 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Generate Fake Test Results') {
-            steps {
-                bat '''
-                mkdir target\\allure-results
+    tools {
+        maven "M3"
+    }
 
-                echo { ^
-                  "uuid": "12345", ^
-                  "name": "Pipeline Test Example", ^
-                  "status": "passed", ^
-                  "stage": "finished", ^
-                  "steps": [], ^
-                  "attachments": [], ^
-                  "labels": [ ^
-                    {"name":"suite","value":"Jenkins Pipeline"}, ^
-                    {"name":"framework","value":"manual"} ^
-                  ] ^
-                } > target\\allure-results\\result.json
-                '''
+    stages {
+        stage('Test') {
+            steps {
+                bat 'mvn clean test'
             }
         }
     }
 
     post {
-        always {
+        success {
             allure([
                 includeProperties: false,
                 jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
                 results: [[path: 'target/allure-results']]
             ])
         }
