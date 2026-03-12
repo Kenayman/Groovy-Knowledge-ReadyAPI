@@ -1,29 +1,13 @@
 pipeline {
     agent any
-
     stages {
-
-        stage('Create TXT file') {
+        stage('build') {
             steps {
-                writeFile file: 'demo.txt', text: 'Hello from Jenkins!'
-            }
-        }
-
-        stage('Read TXT file') {
-            steps {
-                echo readFile('demo.txt')
-            }
-        }
-
-        stage('Create Fake Allure Result') {
-            steps {
-                sh 'mkdir -p reports/allure-results'
-                writeFile file: 'reports/allure-results/result.json', text: '{}'
+                bat 'whoami'
             }
         }
     }
-
-    post {
+   post {
         always {
             allure includeProperties: false,
                    jdk: '',
