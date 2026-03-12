@@ -4,18 +4,18 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                bat 'mvn -D clean test'
+                bat 'mvn clean test'
             }
         }
     }
 
     post {
-        succes {
+        success {
             allure([
                 includeProperties: false,
                 jdk: '',
                 properties: [],
-                reportBuildPolicy: 'ALWAYS'
+                reportBuildPolicy: 'ALWAYS',
                 results: [[path: 'target/allure-results']]
             ])
         }
