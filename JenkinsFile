@@ -3,12 +3,24 @@ pipeline {
 
     stages {
 
-        stage('Run Tests') {
+        stage('Create TXT file') {
             steps {
-                sh 'mvn clean test'
+                writeFile file: 'demo.txt', text: 'Hello from Jenkins!'
             }
         }
 
+        stage('Read TXT file') {
+            steps {
+                echo readFile('demo.txt')
+            }
+        }
+
+        stage('Create Fake Allure Result') {
+            steps {
+                sh 'mkdir -p reports/allure-results'
+                writeFile file: 'reports/allure-results/result.json', text: '{}'
+            }
+        }
     }
 
     post {
