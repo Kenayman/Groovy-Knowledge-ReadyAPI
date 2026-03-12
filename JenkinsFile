@@ -1,18 +1,22 @@
 pipeline {
     agent any
+
     stages {
-        stage('build') {
+        stage('Build') {
             steps {
                 bat 'whoami'
+                bat 'mvn clean test'
             }
         }
     }
-   post {
+
+    post {
         always {
-            allure includeProperties: false,
-                   jdk: '',
-                   resultPolicy: 'LEAVE_AS_IS',
-                   results: [[path: 'reports/allure-results']]
+            allure(
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'target/allure-results']]
+            )
         }
     }
 }
